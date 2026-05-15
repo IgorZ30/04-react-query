@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import css from "./App.module.css";
 import SearchBar from "../SearchBar/SearchBar";
 import Loader from "../Loader/Loader";
@@ -26,12 +26,17 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [query, setQuery] = useState("");
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["Movies", query, currentPage],
     queryFn: () => fetchMovies(query, currentPage),
     enabled: query !== "",
     placeholderData: keepPreviousData,
   });
+  useEffect(() => {
+    if (isSuccess && data?.movies.length === 0 && query !== "") {
+      toast("No movies found");
+    }
+  }, [data?.movies.length, isSuccess, query]);
 
   const handleSearch = (query: string) => {
     setQuery(query);
